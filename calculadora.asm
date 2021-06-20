@@ -52,26 +52,80 @@ main:
 	li $a1, len
 	syscall
 	mov.s $f2, $f0
-
-	
-	li $v0, 2
-	mov.s $f12, $f1
-	syscall
-	
 	
 imc_p:    
-	mul.s $f1, $f1, $f1 #estatura x estatura
-	div.s $f3, $f2, $f1	# peso/estatura2	
+	mul.s $f3, $f1, $f1 #estatura x estatura
+	div.s $f4, $f2, $f3	# peso/estatura2	
 	
 	li $v0, 4
 	la $a0, imc
 	syscall 
 	li $v0, 2
-	mov.s $f12, $f3
+	mov.s $f12, $f4
 	la $a0, texto 
 	li $a1, len
 	syscall 
+	li $v0, 4
+	la $a0, newLine
+	syscall
 
+mujer:
+	addi $t0, $t0, 100
+	addi $t1, $t1, 150
+	addi $t2, $t2, 2
+	mtc1 $t0, $f5
+	mtc1 $t1, $f8
+	mtc1 $t2, $f9
+	cvt.s.w $f5, $f5
+	cvt.s.w $f8, $f8
+	cvt.s.w $f9, $f9
+	mul.s $f6, $f1, $f5
+	sub.s $f7, $f6, $f5
+
+	sub.s $f10, $f6, $f8
+	div.s $f11, $f10, $f9
+	sub.s $f10, $f7, $f11
+	li $v0, 4
+	la $a0, pi
+	syscall 
+	li $v0, 2
+	mov.s $f12, $f10
+	la $a0, texto 
+	li $a1, len
+	syscall 
+	li $v0, 4
+	la $a0, newLine
+	syscall
+		
+
+hombre: 
+	addi $t0, $t0, 100
+	addi $t1, $t1, 150
+	addi $t2, $t2, 4
+	mtc1 $t0, $f5
+	mtc1 $t1, $f8
+	mtc1 $t2, $f9
+	cvt.s.w $f5, $f5
+	cvt.s.w $f8, $f8
+	cvt.s.w $f9, $f9
+	
+	mul.s $f6, $f1, $f5
+	sub.s $f7, $f6, $f5
+
+	sub.s $f10, $f6, $f8
+	div.s $f11, $f10, $f9
+	sub.s $f11, $f7, $f11
+	li $v0, 4
+	la $a0, pi
+	syscall 
+	li $v0, 2
+	mov.s $f12, $f11
+	la $a0, texto 
+	li $a1, len
+	syscall 
+	li $v0, 4
+	la $a0, newLine
+	syscall
 	
 	
 	

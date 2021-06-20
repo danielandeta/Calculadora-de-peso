@@ -60,10 +60,6 @@ main:
 	
 	
 imc_p:    
-	mtc1 $s2, $f0 #convierte el entero a float 
-	li $v0, 2
-	mov.s $f6, $f0
-	syscall
 	cvt.s.w $f0, $f0 #uso s ya que estoy trabajando con float
 	mul.s $f1, $f0, $f0 #estatura x estatura
 	li $v0, 2

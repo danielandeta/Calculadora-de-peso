@@ -42,7 +42,7 @@ main:
 	la $a0, texto 
 	li $a1, len
 	syscall
-	move $s2, $v0
+	mov.s $f1, $f0
 	
 	li $v0, 4 #llamado de peso
 	la $a0, peso
@@ -52,10 +52,10 @@ main:
 	li $a1, len
 	syscall
 	move $s3, $v0
-	j imc_p
+
 	
 	li $v0, 2
-	la $a0, $s2
+	mov.s $f12, $f1
 	syscall
 	
 	

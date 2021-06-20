@@ -11,6 +11,7 @@ asc: .asciiz "Su (ASM) es: "
 mcm: .asciiz "Su (MCM) es: "
 act: .asciiz "Su (ACT) es: "
 cal: .asciiz "Necesita "
+porcentaje: .asciiz "%"
 newLine: .asciiz "\n"
 texto: .space len
 .text
@@ -69,7 +70,7 @@ imc_p:
 	la $a0, newLine
 	syscall
 
-mujer:
+pi_mujer:
 	addi $t0, $t0, 100
 	addi $t1, $t1, 150
 	addi $t2, $t2, 2
@@ -96,9 +97,28 @@ mujer:
 	li $v0, 4
 	la $a0, newLine
 	syscall
-		
 
-hombre: 
+ppi_t:
+	div.s $f13, $f2, $f12
+	mul.s $f13, $f13, $f5
+	
+	li $v0, 4
+	la $a0, ppi
+	syscall 
+	li $v0, 2
+	mov.s $f12, $f10
+	la $a0, texto 
+	li $a1, len
+	syscall 
+	li $v0, 4
+	la $a0, porcentaje
+	syscall
+	li $v0, 4
+	la $a0, newLine
+	syscall
+				
+
+pi_hombre: 
 	addi $t0, $t0, 100
 	addi $t1, $t1, 150
 	addi $t2, $t2, 4
@@ -126,7 +146,8 @@ hombre:
 	li $v0, 4
 	la $a0, newLine
 	syscall
-	
+
+
 	
 	
 	

@@ -51,7 +51,7 @@ main:
 	la $a0, texto 
 	li $a1, len
 	syscall
-	move $s3, $v0
+	mov.s $f2, $f0
 
 	
 	li $v0, 2
@@ -60,24 +60,18 @@ main:
 	
 	
 imc_p:    
-	cvt.s.w $f0, $f0 #uso s ya que estoy trabajando con float
-	mul.s $f1, $f0, $f0 #estatura x estatura
-	li $v0, 2
-	mov.s $f7, $f1
-	syscall
-	mtc1 $s3, $f2 #convierte el entero a float 
-	cvt.s.w $f2, $f2 #uso s ya que estoy trabajando con float
-	div.s $f5, $f3, $f1	# peso/estatura2	
-	#mflo $f4
-	li $v0, 2
-	mov.s $f12, $f5 
-	syscall 
+	mul.s $f1, $f1, $f1 #estatura x estatura
+	div.s $f3, $f2, $f1	# peso/estatura2	
+	
 	li $v0, 4
 	la $a0, imc
 	syscall 
-	#move $a0, $t1 #resta de aleatorio mayor menos el input
-	#li $v0, 2
-	#syscall 
+	li $v0, 2
+	mov.s $f12, $f3
+	la $a0, texto 
+	li $a1, len
+	syscall 
+
 	
 	
 	

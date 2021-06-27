@@ -1,5 +1,6 @@
 .data
 .eqv len 10
+pregunta: .asciiz "Si deseo realizar otro cálculo escriba 1 y si no escriba 0: "
 error: .asciiz "Se ha producido un error"
 edad: .asciiz "Ingrese su edad: "
 sexo: .asciiz "Si es mujer escriba 0 y si es hombre escriba 1: "
@@ -203,8 +204,22 @@ main:
 	la $a0, newLine
 	syscall
 	
+	#pregunta
+	li $v0, 4
+	la $a0, pregunta
+	syscall 
+	
+	li $v0, 5
+	la $a0, texto 
+	li $a1, len
+	syscall
+	move $s2, $v0
+	bne $s2, $zero, loop
 	#salida
 	j exit
+	
+loop: 
+	jal main
 pi_t: #imprime calculo peso ideal dependiendo si es hombre o mujer
 	addi $sp,$sp,-4
    	sw $ra,($sp)

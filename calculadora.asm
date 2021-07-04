@@ -43,6 +43,10 @@ texto: .space len
 .text
 .globl main
 
+
+#A continuación solicitamos al usuario ingresar los datos que el programa necesita para poder 
+#realizar su función, la información que se solicita es la siguiente:
+
 main:
 	li $v0, 4  #llamado de edad
 	la $a0, edad
@@ -82,17 +86,20 @@ main:
 	mov.s $f2, $f0
 	
 	#calculo peso ideal
-	li $v0, 4
+	li $v0, 4 #Hacemos uso de la pseudoinstrucción li para cargar el número de servicio en el registro $v0
 	la $a0, pi
 	syscall 
-	jal pi_t
+	jal pi_t #Se usa jal para saltar a la función pi_t y traer el valor que esta función retorna
 	
-	mov.s $f12, $f0
+	mov.s $f12, $f0 #Con el mov.s movemos un float a un registro.
+	
+	#Las siguientes líneas son para imprimir los resultados usando las variables 
+	#de texto presentadas anteriormente.
 	li $v0, 2
 	la $a0, texto 
 	li $a1, len
 	syscall 
-	mov.s $f19, $f12
+	mov.s $f19, $f12 #Con el mov.s movemos un float a un registro.
 	li $v0, 4
 	la $a0, kg
 	syscall
@@ -101,7 +108,7 @@ main:
 	syscall
 	
 	#calculo porcentaje peso ideal
-	li $v0, 4
+	li $v0, 4 ##Hacemos uso de la pseudoinstrucción li para cargar el número de servicio en el registro $v0
 	la $a0, ppi
 	syscall 
 	jal ppi_t
@@ -183,7 +190,6 @@ main:
 	la $a0, texto 
 	li $a1, len
 	syscall 
-
 	li $v0, 4
 	la $a0, newLine
 	syscall
@@ -204,6 +210,10 @@ main:
 	la $a0, newLine
 	syscall
 	
+	
+	#Aqui implementamos un lazo while donde podremos validar si el usuario quiere o no
+	#seguir realizando otro calculo, entra al lazo si el usuario dice si, si dice no, sale del lazo
+	
 	#pregunta
 	li $v0, 4
 	la $a0, pregunta
@@ -214,33 +224,44 @@ main:
 	li $a1, len
 	syscall
 	move $s2, $v0
-	bne $s2, $zero, loop
+	bne $s2, $zero, loop #validamos si la respuesta del usuario no es sero, para seguir dentro del lazo
 	#salida
 	j exit
 	
 loop: 
 	jal main
 pi_t: #imprime calculo peso ideal dependiendo si es hombre o mujer
-	addi $sp,$sp,-4
-   	sw $ra,($sp)
-   	
-	beq $s1, $zero, pi_mujer
+	addi $sp,$sp,-4 	#hacemos uso del puntero de pila $sp, y con sw almacenamos en memoria los datos, 
+	sw $ra,($sp)		#desde el registro de origen $ra y el registro de destino $sp.
+   	   	
+	beq $s1, $zero, pi_mujer 	#la instrucción comparativa beq que compara $s1 (lo que el usuario ingresa por 
+					#consola 1 ó 0) y lo compara con $zero
 	#pi hombre
+	
+	#En las siguientes líneas de código asignamos (100, 150 y 4) a las temporales ($t0, $t1,$t2) respectivamente
 	addi $t0, $t0, 100
 	addi $t1, $t1, 150
 	addi $t2, $t2, 4
+	#Luego con mtc1 copiamos ($t0, $t1, $t2) en ($f5,$f8,$f9) respectivamente. 
+	#Con cvt.s.w convertimos ($f5,$f8,$f9) de entero a flotante de simple precisión
 	mtc1 $t0, $f5
 	mtc1 $t1, $f8
 	mtc1 $t2, $f9
 	cvt.s.w $f5, $f5
 	cvt.s.w $f8, $f8
 	cvt.s.w $f9, $f9
+	
+	#operaciones matemáticas de multiplicación (mul.s), resta(sub.s), (div.s)
 	mul.s $f6, $f1, $f5
 	sub.s $f7, $f6, $f5
 
 	sub.s $f10, $f6, $f8
 	div.s $f11, $f10, $f9
 	sub.s $f10, $f7, $f11
+	
+	#copiamos el valor del registro $f10 al registro $f0. Después accedemos al 
+	#elemento de la pila con lw y luego lo eliminamos de la pila con addi.
+
 	mov.s $f0, $f10
 	
 	lw $ra, ($sp)
@@ -248,7 +269,7 @@ pi_t: #imprime calculo peso ideal dependiendo si es hombre o mujer
 	#--------
 	jr $ra
 	
-pi_mujer:
+pi_mujer: #el codigo es similar al pi del hombre, comentado en las lineas anteriores, para referencia.
 	addi $t0, $t0, 100
 	addi $t1, $t1, 150
 	addi $t2, $t2, 2
@@ -268,11 +289,14 @@ pi_mujer:
 	jr $ra
 		
 ppi_t:
-	addi $sp,$sp,-4
+	addi $sp,$sp,-4 	#puntero de pila $sp, y con sw almacenamos en memoria 
+				#los datos, desde el registro de origen $ra y el registro de destino $sp
    	sw $ra,($sp)
-   	l.s $f5, cien
-	beq $s1, $zero, ppi_mujer
+   	l.s $f5, cien #con l.s cargamos en $f5 el flotante cien
+	beq $s1, $zero, ppi_mujer 	#usamos beq para saber qué cálculo realizar dependiendo de lo que 
+					#el usuario ingrese por consola, al igual que hicimos con el peso ideal
 	
+	#operaciones matematicas
 	div.s $f13, $f2, $f12
 	mul.s $f13, $f13, $f5
 	mov.s $f0, $f13
@@ -281,7 +305,7 @@ ppi_t:
 	#--------
 	jr $ra
 
-ppi_mujer:
+ppi_mujer:#referencia en el codigo anterior, ppi_hombre
 	
 	div.s $f13, $f2, $f12
 	mul.s $f13, $f13, $f5	
@@ -289,14 +313,17 @@ ppi_mujer:
 	jr $ra
 	
 imc_p:    
+	#puntero de pila $sp, y con sw almacenamos en memoria los datos, 
+	#desde el registro de origen $ra y el registro de destino $sp.
 	addi $sp,$sp,-4
    	sw $ra,($sp)
  
    	#---------
 	mul.s $f3, $f1, $f1 #estatura x estatura
 	div.s $f4, $f2, $f3	# peso/estatura2	
-	mov.s $f0, $f4
+	mov.s $f0, $f4 #movemos el resultado al registro $f0
 	
+	#accedemos al elemento de la pila con lw y luego lo eliminamos de la pila con addi
 	lw $ra, ($sp)
 	addi $sp,$sp,4
 	#--------
@@ -306,27 +333,32 @@ imc_p:
 mcm_t:
 	#Varon:MCM= PT(kg) x 1.1 - 128 x [PT(kg)/altura(cm)]^2
 	#Mujer:MCM PT (kg) x 1.07 - 148 x [PT(kg)/altura(cm)]^2
+	
+	#puntero de pila $sp, y con sw almacenamos en memoria los datos, desde el 
+	#registro de origen $ra y el registro de destino $sp
 	addi $sp,$sp,-4
    	sw $ra,($sp)
  
-	beq $s1, $zero, mcm_mujer
+	beq $s1, $zero, mcm_mujer #instrucción comparativa beq que compara $s1 (lo que el usuario ingresa por consola
 	
 	l.s $f14, c_mcm_v
 	#mtc1 $t1, $f14
+	#instrucción l.s para cargar en el registro las variables c_mcm_v y c_mcm_mm dependiendo el caso
 	l.s $f15, c_mcm_vv
 	l.s $f17, diezmil
+	#operaciones matematicas
 	mul.s $f16, $f4, $f2	#kg2/m2
 	mul.s $f14, $f2, $f14  #kg*1.07
 	mul.s $f16, $f16, $f15	#148*kg2/m2
 	div.s $f17, $f16, $f17 	#148*kg2/cm2
 	sub.s $f17, $f14, $f17   #resta
-	mov.s $f0, $f17
+	mov.s $f0, $f17 #guardamos el resultado en $f0
 	lw $ra, ($sp)
 	addi $sp,$sp,4
 	#--------
 	jr $ra
 
-mcm_mujer:
+mcm_mujer: #codigo anterior como referencia, el codigo es similar
 	l.s $f14, c_mcm_m
 	#mtc1 $t1, $f14
 	l.s $f15, c_mcm_mm
@@ -343,11 +375,14 @@ act_t:
 	#2.447 - (0.09156 * Edad) + (0.1074 * Estatura) + (0.3362 * Peso)
 	addi $sp,$sp,-4
    	sw $ra,($sp)
+   	#con la instrucción l.s cargamos los valores de (c_act1, c_act2, c_act3, c_act4, cien) en 
+   	#los registros ($f4,$f5,$f6,$f7,$f9) respectivamente
 	l.s $f4, c_act_1
 	l.s $f5, c_act_2
 	l.s $f6, c_act_3
 	l.s $f7, c_act_4
 	l.s $f9, cien
+	#operaciones matematicas
 	mul.s $f8, $f18, $f5
 	sub.s $f4, $f4, $f8
 	mul.s $f6, $f6, $f1
@@ -355,7 +390,8 @@ act_t:
 	mul.s $f7, $f7, $f2
 	add.s $f7, $f6, $f7
 	add.s $f7, $f7, $f4
-	mov.s $f0, $f7
+	mov.s $f0, $f7 #guardamos el resultado en $f0
+	#accedemos al elemento de la pila con lw y luego lo eliminamos de la pila con addi.
 	lw $ra, ($sp)
 	addi $sp,$sp,4
 	#--------
@@ -365,13 +401,14 @@ tmb_t:
 	addi $sp,$sp,-4
    	sw $ra,($sp)
  
-	beq $s1, $zero, tmb_mujer
-	
+	beq $s1, $zero, tmb_mujer #instrucción comparativa beq que compara $s1 (lo que el usuario ingresa por consola
+	#cargamos los valores de (diez, c_tmb, c_tmb_2, cien, c_tmb_3) en los registros ($f4,$f5,$f6,$f7,$f9) respectivamente
 	l.s $f4, diez
 	l.s $f5, c_tmb
 	l.s $f6, c_tmb_2
 	l.s $f7, cien
 	l.s $f9, c_tmb_3
+	#operaciones matematicas
 	mul.s $f4, $f4, $f2 #10*peso
 	mul.s $f5, $f5, $f1 #6.25*estatura
 	mul.s $f5, $f5, $f7
@@ -381,13 +418,14 @@ tmb_t:
 	#add.s $f8, $f6, $f8 #5+5*edad
 	sub.s $f5, $f5, $f8 
 	sub.s $f5, $f5, $f9
-	mov.s $f0, $f5
+	mov.s $f0, $f5 #guardamos el resultado en $f0
+	#accedemos al elemento de la pila con lw y luego lo eliminamos de la pila con addi.
 	lw $ra, ($sp)
 	addi $sp,$sp,4
 	#--------
 	jr $ra
 	
-tmb_mujer:
+tmb_mujer: #codigo de arriba sirve de referencia para este codigo
 	l.s $f4, diez
 	l.s $f5, c_tmb
 	l.s $f6, c_tmb_2
@@ -410,9 +448,9 @@ exit:
 calorias:
 	addi $sp,$sp,-4
    	sw $ra,($sp)
+   	#cargamos los valores de (c_tmb_2, mantener) en los registros ($f3,$f6) respectivamente
    	l.s $f3, c_tmb_2
    	l.s $f6, mantener
-   	
  	add.s $f4, $f19, $f3 #peso ideal +5
  	sub.s $f5, $f19, $f3 #peso ideal -5
  	c.lt.s $f4, $f2 #peso< peso ideal+5
@@ -421,12 +459,13 @@ calorias:
 	bc1t else_if
 	mul.s $f9, $f12, $f6
 	li $v0, 4
-	la $a0, dentro
+	la $a0, dentro #indicamos que el peso es el recomendado
 	syscall
 	mov.s $f0, $f9
 	jr $ra
 
-else_if: 
+else_if:#codigo de arriba como referencia para este codigo 
+	
 	l.s $f3, c_tmb_2
 	l.s $f7, adelgazar
    	l.s $f8, subir
@@ -435,7 +474,7 @@ else_if:
  	bc1t subir_if
  	mul.s $f9, $f12, $f7
  	li $v0, 4
-	la $a0, fuera_up
+	la $a0, fuera_up #indicamos que hay sobrepeso
 	syscall
 	mov.s $f0, $f9
 	jr $ra
@@ -447,14 +486,14 @@ subir_if:
  	bc1t errorf
  	mul.s $f9, $f12, $f8
  	li $v0, 4
-	la $a0, fuera_dowm
+	la $a0, fuera_dowm #indicamos que esta falto de peso
 	syscall
 	mov.s $f0, $f9
 	jr $ra	
 	
 errorf:
 	li $v0, 4
-	la $a0, error
+	la $a0, error #imprimimos un error en caso de existir
 	syscall	
 	
 	

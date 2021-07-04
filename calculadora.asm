@@ -1,8 +1,11 @@
 .data
 .eqv len 10
+
+bienvenida: .asciiz "Bienvenidos a la calculadora antropométrica, ingrese los sigueintes datos por favor."
+agradecimiento: .asciiz "Gracias por usar nuestra calculadora, te esperamos pronto"
 pregunta: .asciiz "Si deseo realizar otro cálculo escriba 1 y si no escriba 0: "
 error: .asciiz "Se ha producido un error"
-edad: .asciiz "Ingrese su edad: "
+edad: .asciiz "Ingrese su Edad: "
 sexo: .asciiz "Si es mujer escriba 0 y si es hombre escriba 1: "
 estatura: .asciiz "Ingrese su estatura en m: "
 peso: .asciiz "Ingrese su peso en kg: "
@@ -43,11 +46,19 @@ texto: .space len
 .text
 .globl main
 
-
 #A continuación solicitamos al usuario ingresar los datos que el programa necesita para poder 
 #realizar su función, la información que se solicita es la siguiente:
 
 main:
+	
+	bienvenido:
+	la $a0, bienvenida #imprimimos un mensaje de bienvenida antes de empezar.
+	li $v0, 4
+	syscall	
+	li $v0, 4
+	la $a0, newLine
+	syscall	
+
 	li $v0, 4  #llamado de edad
 	la $a0, edad
 	syscall
@@ -210,6 +221,13 @@ main:
 	la $a0, newLine
 	syscall
 	
+	#Aradecimiento por usar el programa.
+	la $a0, agradecimiento #imprimimos un mensaje de agradecimienti al finalizar.
+	li $v0, 4
+	syscall	
+	li $v0, 4
+	la $a0, newLine
+	syscall	
 	
 	#Aqui implementamos un lazo while donde podremos validar si el usuario quiere o no
 	#seguir realizando otro calculo, entra al lazo si el usuario dice si, si dice no, sale del lazo
@@ -491,6 +509,7 @@ subir_if:
 	mov.s $f0, $f9
 	jr $ra	
 	
+
 errorf:
 	li $v0, 4
 	la $a0, error #imprimimos un error en caso de existir
